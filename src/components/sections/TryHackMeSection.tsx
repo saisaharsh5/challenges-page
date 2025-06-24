@@ -17,7 +17,8 @@ export const TryHackMeSection: React.FC = () => {
     title: '',
     description: '',
     difficulty: 'Easy' as const,
-    url: ''
+    url: '',
+    completion_date: new Date().toISOString().split('T')[0]
   });
   const { user } = useAuth();
 
@@ -30,7 +31,7 @@ export const TryHackMeSection: React.FC = () => {
       const { data, error } = await supabase
         .from('tryhackme_rooms')
         .select('*')
-        .order('created_at', { ascending: false });
+        .order('completion_date', { ascending: false });
 
       if (error) throw error;
       setRooms(data || []);
@@ -96,7 +97,8 @@ export const TryHackMeSection: React.FC = () => {
       title: room.title,
       description: room.description,
       difficulty: room.difficulty,
-      url: room.url
+      url: room.url,
+      completion_date: room.completion_date || new Date().toISOString().split('T')[0]
     });
     setIsModalOpen(true);
   };
@@ -106,7 +108,8 @@ export const TryHackMeSection: React.FC = () => {
       title: '',
       description: '',
       difficulty: 'Easy',
-      url: ''
+      url: '',
+      completion_date: new Date().toISOString().split('T')[0]
     });
     setEditingRoom(null);
   };
@@ -122,6 +125,7 @@ export const TryHackMeSection: React.FC = () => {
   };
 
   const formatDate = (dateString: string) => {
+    if (!dateString) return 'No date';
     return new Date(dateString).toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
@@ -227,7 +231,7 @@ export const TryHackMeSection: React.FC = () => {
                 badgeColor={getDifficultyColor(room.difficulty)}
                 url={room.url}
                 category="TryHackMe"
-                date={formatDate(room.created_at)}
+                date={formatDate(room.completion_date)}
                 onEdit={user ? () => handleEdit(room) : undefined}
                 onDelete={user ? () => handleDelete(room.id) : undefined}
               />
@@ -270,20 +274,34 @@ export const TryHackMeSection: React.FC = () => {
                 placeholder="Brief description of what you learned..."
               />
             </div>
-            <div>
-              <label className="block text-sm font-mono text-gray-300 mb-2">
-                Difficulty
-              </label>
-              <select
-                value={formData.difficulty}
-                onChange={(e) => setFormData({ ...formData, difficulty: e.target.value as any })}
-                className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-terminal-green font-mono"
-              >
-                <option value="Easy">Easy</option>
-                <option value="Medium">Medium</option>
-                <option value="Hard">Hard</option>
-                <option value="Insane">Insane</option>
-              </select>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-mono text-gray-300 mb-2">
+                  Difficulty
+                </label>
+                <select
+                  value={formData.difficulty}
+                  onChange={(e) => setFormData({ ...formData, difficulty: e.target.value as any })}
+                  className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-terminal-green font-mono"
+                >
+                  <option value="Easy">Easy</option>
+                  <option value="Medium">Medium</option>
+                  <option value="Hard">Hard</option>
+                  <option value="Insane">Insane</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-mono text-gray-300 mb-2">
+                  Completion Date
+                </label>
+                <input
+                  type="date"
+                  value={formData.completion_date}
+                  onChange={(e) => setFormData({ ...formData, completion_date: e.target.value })}
+                  className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-terminal-green font-mono"
+                  required
+                />
+              </div>
             </div>
             <div>
               <label className="block text-sm font-mono text-gray-300 mb-2">

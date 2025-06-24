@@ -17,7 +17,8 @@ export const CTFSection: React.FC = () => {
     event_name: '',
     challenge_title: '',
     category: '',
-    my_ranking: 1
+    my_ranking: 1,
+    completion_date: new Date().toISOString().split('T')[0]
   });
   const { user } = useAuth();
 
@@ -30,7 +31,7 @@ export const CTFSection: React.FC = () => {
       const { data, error } = await supabase
         .from('ctf_challenges')
         .select('*')
-        .order('created_at', { ascending: false });
+        .order('completion_date', { ascending: false });
 
       if (error) throw error;
       setChallenges(data || []);
@@ -96,7 +97,8 @@ export const CTFSection: React.FC = () => {
       event_name: challenge.event_name,
       challenge_title: challenge.challenge_title,
       category: challenge.category,
-      my_ranking: challenge.my_ranking
+      my_ranking: challenge.my_ranking,
+      completion_date: challenge.completion_date || new Date().toISOString().split('T')[0]
     });
     setIsModalOpen(true);
   };
@@ -106,7 +108,8 @@ export const CTFSection: React.FC = () => {
       event_name: '',
       challenge_title: '',
       category: '',
-      my_ranking: 1
+      my_ranking: 1,
+      completion_date: new Date().toISOString().split('T')[0]
     });
     setEditingChallenge(null);
   };
@@ -126,6 +129,7 @@ export const CTFSection: React.FC = () => {
   };
 
   const formatDate = (dateString: string) => {
+    if (!dateString) return 'No date';
     return new Date(dateString).toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
@@ -243,7 +247,7 @@ export const CTFSection: React.FC = () => {
                 badge={`#${challenge.my_ranking}`}
                 badgeColor={getRankingColor(challenge.my_ranking)}
                 category="CTF Competition"
-                date={formatDate(challenge.created_at)}
+                date={formatDate(challenge.completion_date)}
                 onEdit={user ? () => handleEdit(challenge) : undefined}
                 onDelete={user ? () => handleDelete(challenge.id) : undefined}
               >
@@ -311,18 +315,32 @@ export const CTFSection: React.FC = () => {
                 required
               />
             </div>
-            <div>
-              <label className="block text-sm font-mono text-gray-300 mb-2">
-                My Ranking
-              </label>
-              <input
-                type="number"
-                value={formData.my_ranking}
-                onChange={(e) => setFormData({ ...formData, my_ranking: parseInt(e.target.value) })}
-                className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-terminal-green transition-colors font-mono"
-                min="1"
-                required
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-mono text-gray-300 mb-2">
+                  My Ranking
+                </label>
+                <input
+                  type="number"
+                  value={formData.my_ranking}
+                  onChange={(e) => setFormData({ ...formData, my_ranking: parseInt(e.target.value) })}
+                  className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-terminal-green transition-colors font-mono"
+                  min="1"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-mono text-gray-300 mb-2">
+                  Competition Date
+                </label>
+                <input
+                  type="date"
+                  value={formData.completion_date}
+                  onChange={(e) => setFormData({ ...formData, completion_date: e.target.value })}
+                  className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-terminal-green font-mono"
+                  required
+                />
+              </div>
             </div>
             <div className="flex justify-end space-x-3 pt-6">
               <button

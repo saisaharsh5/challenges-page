@@ -18,7 +18,8 @@ export const HackTheBoxSection: React.FC = () => {
     description: '',
     os_type: 'Linux' as const,
     points: 20,
-    url: ''
+    url: '',
+    completion_date: new Date().toISOString().split('T')[0]
   });
   const { user } = useAuth();
 
@@ -31,7 +32,7 @@ export const HackTheBoxSection: React.FC = () => {
       const { data, error } = await supabase
         .from('hackthebox_machines')
         .select('*')
-        .order('created_at', { ascending: false });
+        .order('completion_date', { ascending: false });
 
       if (error) throw error;
       setMachines(data || []);
@@ -98,7 +99,8 @@ export const HackTheBoxSection: React.FC = () => {
       description: machine.description,
       os_type: machine.os_type,
       points: machine.points,
-      url: machine.url
+      url: machine.url,
+      completion_date: machine.completion_date || new Date().toISOString().split('T')[0]
     });
     setIsModalOpen(true);
   };
@@ -109,7 +111,8 @@ export const HackTheBoxSection: React.FC = () => {
       description: '',
       os_type: 'Linux',
       points: 20,
-      url: ''
+      url: '',
+      completion_date: new Date().toISOString().split('T')[0]
     });
     setEditingMachine(null);
   };
@@ -127,6 +130,7 @@ export const HackTheBoxSection: React.FC = () => {
   };
 
   const formatDate = (dateString: string) => {
+    if (!dateString) return 'No date';
     return new Date(dateString).toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
@@ -243,7 +247,7 @@ export const HackTheBoxSection: React.FC = () => {
                 badgeColor={getOSColor(machine.os_type)}
                 url={machine.url}
                 category="Hack The Box"
-                date={formatDate(machine.created_at)}
+                date={formatDate(machine.completion_date)}
                 onEdit={user ? () => handleEdit(machine) : undefined}
                 onDelete={user ? () => handleDelete(machine.id) : undefined}
               >
@@ -325,6 +329,18 @@ export const HackTheBoxSection: React.FC = () => {
                   required
                 />
               </div>
+            </div>
+            <div>
+              <label className="block text-sm font-mono text-gray-300 mb-2">
+                Completion Date
+              </label>
+              <input
+                type="date"
+                value={formData.completion_date}
+                onChange={(e) => setFormData({ ...formData, completion_date: e.target.value })}
+                className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-terminal-green font-mono"
+                required
+              />
             </div>
             <div>
               <label className="block text-sm font-mono text-gray-300 mb-2">

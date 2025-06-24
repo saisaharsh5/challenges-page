@@ -4,6 +4,7 @@ export interface TryHackMeRoom {
   description: string;
   difficulty: 'Easy' | 'Medium' | 'Hard' | 'Insane';
   url: string;
+  completion_date: string;
   created_at: string;
 }
 
@@ -14,6 +15,7 @@ export interface HackTheBoxMachine {
   os_type: 'Linux' | 'Windows' | 'Other';
   points: number;
   url: string;
+  completion_date: string;
   created_at: string;
 }
 
@@ -23,6 +25,7 @@ export interface CTFChallenge {
   challenge_title: string;
   category: string;
   my_ranking: number;
+  completion_date: string;
   created_at: string;
 }
 
