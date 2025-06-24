@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
-import { Shield, Eye, EyeOff, User, Lock, AlertCircle, ExternalLink, Copy, Check } from 'lucide-react';
+import { Shield, Eye, EyeOff, User, Lock, AlertCircle, ExternalLink } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
-import { supabase } from '../lib/supabase';
 import toast from 'react-hot-toast';
 
 export const AdminLogin: React.FC = () => {
@@ -11,75 +10,39 @@ export const AdminLogin: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showSetupInstructions, setShowSetupInstructions] = useState(false);
-  const [copiedField, setCopiedField] = useState<string | null>(null);
-  const { user, signIn, signOut } = useAuth();
+  const { user, signIn, loading: authLoading } = useAuth();
   const navigate = useNavigate();
 
-  // Force clear session when login page loads
+  // Clear form when component mounts
   useEffect(() => {
-    const initializeLoginPage = async () => {
-      try {
-        // Force global sign out
-        await supabase.auth.signOut({ scope: 'global' });
-        
-        // Clear all storage
-        localStorage.clear();
-        sessionStorage.clear();
-        
-        // Clear cookies
-        document.cookie.split(";").forEach((c) => {
-          const eqPos = c.indexOf("=");
-          const name = eqPos > -1 ? c.substr(0, eqPos) : c;
-          document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
-          document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=" + window.location.hostname;
-        });
-        
-        // Clear form
-        setEmail('');
-        setPassword('');
-        setShowPassword(false);
-        setShowSetupInstructions(false);
-        
-        console.log('Login page initialized - all auth data cleared');
-      } catch (error) {
-        console.error('Error initializing login page:', error);
-      }
-    };
-
-    initializeLoginPage();
+    setEmail('');
+    setPassword('');
+    setShowPassword(false);
+    setShowSetupInstructions(false);
   }, []);
 
-  // Only redirect if user is actually authenticated and has email
-  if (user && user.email) {
-    console.log('User authenticated, redirecting to admin');
+  // Redirect if already authenticated
+  if (!authLoading && user) {
+    console.log('User authenticated, redirecting to admin dashboard');
     return <Navigate to="/admin" replace />;
   }
-
-  const copyToClipboard = async (text: string, field: string) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopiedField(field);
-      toast.success(`${field} copied to clipboard`);
-      setTimeout(() => setCopiedField(null), 2000);
-    } catch (err) {
-      toast.error('Failed to copy to clipboard');
-    }
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      const { error } = await signIn(email, password);
+      console.log('Attempting login with email:', email);
+      
+      const { data, error } = await signIn(email, password);
+      
       if (error) {
         console.error('Login error:', error);
         
         // Handle different types of authentication errors
         if (error.message.includes('Invalid login credentials') || 
-            error.message.includes('invalid_credentials') ||
-            error.message.includes('Email not confirmed')) {
-          toast.error('Admin user not found or not verified. Please set up the admin user first.');
+            error.message.includes('invalid_credentials')) {
+          toast.error('Invalid email or password. Please check your credentials.');
           setShowSetupInstructions(true);
         } else if (error.message.includes('Email not confirmed')) {
           toast.error('Please verify your email address in Supabase dashboard');
@@ -88,9 +51,14 @@ export const AdminLogin: React.FC = () => {
           toast.error(`Authentication failed: ${error.message}`);
           setShowSetupInstructions(true);
         }
-      } else {
+      } else if (data?.user) {
+        console.log('Login successful for user:', data.user.email);
         toast.success('Login successful!');
-        navigate('/admin');
+        
+        // Small delay to ensure auth state is updated
+        setTimeout(() => {
+          navigate('/admin', { replace: true });
+        }, 100);
       }
     } catch (error: any) {
       console.error('Login exception:', error);
@@ -100,6 +68,17 @@ export const AdminLogin: React.FC = () => {
       setLoading(false);
     }
   };
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-center">
+          <Shield className="h-16 w-16 text-terminal-green mx-auto mb-4 animate-pulse" />
+          <p className="text-gray-400 font-mono">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-black flex items-center justify-center px-4">
@@ -117,16 +96,17 @@ export const AdminLogin: React.FC = () => {
             <div>
               <label className="block text-sm font-mono text-gray-300 mb-2">
                 <User className="inline h-4 w-4 mr-2" />
-                Email/Username
+                Email
               </label>
               <input
-                type="text"
+                type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-md text-white focus:outline-none focus:border-terminal-green transition-colors font-mono"
                 required
                 disabled={loading}
                 placeholder="Enter your email"
+                autoComplete="email"
               />
             </div>
 
@@ -144,6 +124,7 @@ export const AdminLogin: React.FC = () => {
                   required
                   disabled={loading}
                   placeholder="Enter your password"
+                  autoComplete="current-password"
                 />
                 <button
                   type="button"

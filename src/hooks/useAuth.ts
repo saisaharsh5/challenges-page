@@ -7,52 +7,41 @@ export const useAuth = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Aggressive auth state clearing on mount
-    const initializeAuth = async () => {
+    // Get initial session
+    const getInitialSession = async () => {
       try {
-        // Clear all possible storage locations
-        localStorage.clear();
-        sessionStorage.clear();
+        const { data: { session }, error } = await supabase.auth.getSession();
         
-        // Clear cookies by setting them to expire
-        document.cookie.split(";").forEach((c) => {
-          const eqPos = c.indexOf("=");
-          const name = eqPos > -1 ? c.substr(0, eqPos) : c;
-          document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
-          document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=" + window.location.hostname;
-        });
-        
-        // Force sign out multiple times to ensure it takes
-        await supabase.auth.signOut({ scope: 'global' });
-        await supabase.auth.signOut();
-        
-        // Wait for sign out to complete
-        await new Promise(resolve => setTimeout(resolve, 500));
-        
-        // Force set user to null
-        setUser(null);
-        
-        console.log('Auth state aggressively cleared');
+        if (error) {
+          console.error('Error getting session:', error);
+          setUser(null);
+        } else {
+          console.log('Initial session:', session?.user?.email || 'No user');
+          setUser(session?.user ?? null);
+        }
       } catch (error) {
-        console.error('Auth initialization error:', error);
+        console.error('Session error:', error);
         setUser(null);
       } finally {
         setLoading(false);
       }
     };
 
-    initializeAuth();
+    getInitialSession();
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         console.log('Auth state changed:', event, session?.user?.email || 'no user');
         
-        // Only set user if we have a valid session with email
-        if (session?.user?.email && event === 'SIGNED_IN') {
+        if (event === 'SIGNED_IN' && session?.user) {
+          console.log('User signed in:', session.user.email);
           setUser(session.user);
-        } else {
+        } else if (event === 'SIGNED_OUT') {
+          console.log('User signed out');
           setUser(null);
+        } else {
+          setUser(session?.user ?? null);
         }
         setLoading(false);
       }
@@ -63,45 +52,50 @@ export const useAuth = () => {
 
   const signIn = async (email: string, password: string) => {
     try {
-      // Clear any existing session first
-      await supabase.auth.signOut();
+      setLoading(true);
       
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
-      return { data, error };
+      
+      if (error) {
+        console.error('Sign in error:', error);
+        return { data: null, error };
+      }
+      
+      console.log('Sign in successful:', data.user?.email);
+      return { data, error: null };
     } catch (error) {
-      console.error('Sign in error:', error);
+      console.error('Sign in exception:', error);
       return { data: null, error };
+    } finally {
+      setLoading(false);
     }
   };
 
   const signOut = async () => {
     try {
+      setLoading(true);
+      
       // Global sign out to clear all sessions
       const { error } = await supabase.auth.signOut({ scope: 'global' });
       
       // Force clear user state immediately
       setUser(null);
       
-      // Clear all storage
-      localStorage.clear();
+      // Clear storage
+      localStorage.removeItem('supabase.auth.token');
       sessionStorage.clear();
       
-      // Clear cookies
-      document.cookie.split(";").forEach((c) => {
-        const eqPos = c.indexOf("=");
-        const name = eqPos > -1 ? c.substr(0, eqPos) : c;
-        document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
-        document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=" + window.location.hostname;
-      });
-      
+      console.log('User signed out successfully');
       return { error };
     } catch (error) {
       console.error('Sign out error:', error);
       setUser(null); // Force clear even on error
       return { error };
+    } finally {
+      setLoading(false);
     }
   };
 
