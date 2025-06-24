@@ -63,10 +63,10 @@ export const AdminLogin: React.FC = () => {
         console.log('Login successful for user:', data.user.email);
         toast.success('Login successful!');
         
-        // Small delay to ensure state is updated
+        // Force navigation after successful login
         setTimeout(() => {
           navigate('/admin', { replace: true });
-        }, 100);
+        }, 500);
       }
     } catch (error: any) {
       console.error('Login exception:', error);

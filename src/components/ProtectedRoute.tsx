@@ -1,5 +1,5 @@
 import React from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { LoadingSpinner } from './LoadingSpinner';
 
@@ -9,8 +9,9 @@ interface ProtectedRouteProps {
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const { user, loading } = useAuth();
+  const location = useLocation();
 
-  console.log('ProtectedRoute - User:', user?.email || 'No user', 'Loading:', loading);
+  console.log('ProtectedRoute - User:', user?.email || 'No user', 'Loading:', loading, 'Path:', location.pathname);
 
   if (loading) {
     return (
@@ -22,7 +23,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 
   if (!user) {
     console.log('No user found, redirecting to login');
-    return <Navigate to="/admin/login" replace />;
+    return <Navigate to="/admin/login" replace state={{ from: location }} />;
   }
 
   console.log('User authenticated, rendering protected content');
