@@ -7,10 +7,20 @@ export const useAuth = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Clear any existing session on mount to ensure clean state
+    // Force clear any existing session on mount
     const initializeAuth = async () => {
       try {
-        // Get current session
+        // Force sign out to clear any cached sessions
+        await supabase.auth.signOut();
+        
+        // Clear local storage
+        localStorage.clear();
+        sessionStorage.clear();
+        
+        // Wait a moment for the sign out to complete
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        // Now get the session (should be null)
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
@@ -33,15 +43,7 @@ export const useAuth = () => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         console.log('Auth state changed:', event, session?.user?.email);
-        
-        if (event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED') {
-          setUser(session?.user ?? null);
-        } else if (event === 'SIGNED_IN') {
-          setUser(session?.user ?? null);
-        } else {
-          setUser(session?.user ?? null);
-        }
-        
+        setUser(session?.user ?? null);
         setLoading(false);
       }
     );
@@ -65,12 +67,19 @@ export const useAuth = () => {
   const signOut = async () => {
     try {
       const { error } = await supabase.auth.signOut();
-      if (!error) {
-        setUser(null);
-        // Clear any local storage or session storage if needed
-        localStorage.clear();
-        sessionStorage.clear();
-      }
+      
+      // Force clear user state and storage
+      setUser(null);
+      localStorage.clear();
+      sessionStorage.clear();
+      
+      // Clear any Supabase related items from storage
+      Object.keys(localStorage).forEach(key => {
+        if (key.includes('supabase') || key.includes('auth')) {
+          localStorage.removeItem(key);
+        }
+      });
+      
       return { error };
     } catch (error) {
       console.error('Sign out error:', error);

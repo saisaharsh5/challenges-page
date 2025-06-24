@@ -1,13 +1,24 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Shield, Settings, LogOut, Home } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
+import toast from 'react-hot-toast';
 
 export const Header: React.FC = () => {
   const { user, signOut } = useAuth();
+  const navigate = useNavigate();
 
   const handleSignOut = async () => {
-    await signOut();
+    try {
+      await signOut();
+      toast.success('Logged out successfully');
+      navigate('/', { replace: true });
+      // Force page reload to ensure clean state
+      window.location.reload();
+    } catch (error) {
+      console.error('Logout error:', error);
+      toast.error('Error logging out');
+    }
   };
 
   return (
@@ -32,7 +43,7 @@ export const Header: React.FC = () => {
             </Link>
 
             {/* Admin-specific buttons - Only visible when authenticated */}
-            {user ? (
+            {user && user.email ? (
               <>
                 <Link
                   to="/admin"

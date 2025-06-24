@@ -10,18 +10,24 @@ import { supabase } from './lib/supabase';
 
 function App() {
   useEffect(() => {
-    // Clear any cached authentication state on app initialization
+    // Force clear authentication state on app initialization
     const clearAuthState = async () => {
       try {
-        // Check if we're on the login page or home page, if so clear any existing sessions
-        const currentPath = window.location.pathname;
-        if (currentPath === '/' || currentPath === '/admin/login') {
-          const { data: { session } } = await supabase.auth.getSession();
-          if (session && currentPath === '/admin/login') {
-            // If there's a session but user is on login page, clear it
-            await supabase.auth.signOut();
+        // Force sign out to clear any persistent sessions
+        await supabase.auth.signOut();
+        
+        // Clear all storage
+        localStorage.clear();
+        sessionStorage.clear();
+        
+        // Clear any Supabase related items from storage
+        Object.keys(localStorage).forEach(key => {
+          if (key.includes('supabase') || key.includes('auth')) {
+            localStorage.removeItem(key);
           }
-        }
+        });
+        
+        console.log('Authentication state cleared');
       } catch (error) {
         console.error('Error clearing auth state:', error);
       }
