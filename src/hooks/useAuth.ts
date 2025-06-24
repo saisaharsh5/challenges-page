@@ -7,6 +7,8 @@ export const useAuth = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let mounted = true;
+
     // Get initial session
     const getInitialSession = async () => {
       try {
@@ -14,16 +16,25 @@ export const useAuth = () => {
         
         if (error) {
           console.error('Error getting session:', error);
-          setUser(null);
-        } else {
-          console.log('Initial session:', session?.user?.email || 'No user');
+          if (mounted) {
+            setUser(null);
+            setLoading(false);
+          }
+          return;
+        }
+
+        console.log('Initial session check:', session?.user?.email || 'No user found');
+        
+        if (mounted) {
           setUser(session?.user ?? null);
+          setLoading(false);
         }
       } catch (error) {
         console.error('Session error:', error);
-        setUser(null);
-      } finally {
-        setLoading(false);
+        if (mounted) {
+          setUser(null);
+          setLoading(false);
+        }
       }
     };
 
@@ -34,36 +45,47 @@ export const useAuth = () => {
       async (event, session) => {
         console.log('Auth state changed:', event, session?.user?.email || 'no user');
         
-        setUser(session?.user ?? null);
-        setLoading(false);
+        if (mounted) {
+          setUser(session?.user ?? null);
+          setLoading(false);
+        }
       }
     );
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signIn = async (email: string, password: string) => {
     try {
       setLoading(true);
       
+      console.log('Attempting to sign in with:', email);
+      
       const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+        email: email.trim(),
+        password: password,
       });
       
       if (error) {
         console.error('Sign in error:', error);
+        setLoading(false);
         return { data: null, error };
       }
       
-      console.log('Sign in successful:', data.user?.email);
-      setUser(data.user);
+      if (data.user) {
+        console.log('Sign in successful for:', data.user.email);
+        setUser(data.user);
+      }
+      
+      setLoading(false);
       return { data, error: null };
     } catch (error) {
       console.error('Sign in exception:', error);
-      return { data: null, error };
-    } finally {
       setLoading(false);
+      return { data: null, error };
     }
   };
 
@@ -75,19 +97,20 @@ export const useAuth = () => {
       
       if (error) {
         console.error('Sign out error:', error);
+      } else {
+        console.log('User signed out successfully');
       }
       
-      // Clear user state
+      // Always clear user state regardless of error
       setUser(null);
+      setLoading(false);
       
-      console.log('User signed out successfully');
       return { error };
     } catch (error) {
       console.error('Sign out error:', error);
       setUser(null);
-      return { error };
-    } finally {
       setLoading(false);
+      return { error };
     }
   };
 

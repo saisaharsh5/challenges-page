@@ -31,12 +31,18 @@ export const AdminLogin: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!email.trim() || !password.trim()) {
+      toast.error('Please enter both email and password');
+      return;
+    }
+
     setLoading(true);
 
     try {
-      console.log('Attempting login with email:', email);
+      console.log('Attempting login with email:', email.trim());
       
-      const { data, error } = await signIn(email, password);
+      const { data, error } = await signIn(email.trim(), password);
       
       if (error) {
         console.error('Login error:', error);
@@ -57,8 +63,10 @@ export const AdminLogin: React.FC = () => {
         console.log('Login successful for user:', data.user.email);
         toast.success('Login successful!');
         
-        // Navigate immediately since useEffect will handle the redirect
-        navigate('/admin', { replace: true });
+        // Small delay to ensure state is updated
+        setTimeout(() => {
+          navigate('/admin', { replace: true });
+        }, 100);
       }
     } catch (error: any) {
       console.error('Login exception:', error);
@@ -109,7 +117,7 @@ export const AdminLogin: React.FC = () => {
                 className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-md text-white focus:outline-none focus:border-terminal-green transition-colors font-mono"
                 required
                 disabled={loading}
-                placeholder="Enter your email"
+                placeholder="saisaharsh@saharsh.net"
                 autoComplete="email"
               />
             </div>
