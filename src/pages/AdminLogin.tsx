@@ -117,7 +117,7 @@ export const AdminLogin: React.FC = () => {
                 className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-md text-white focus:outline-none focus:border-terminal-green transition-colors font-mono"
                 required
                 disabled={loading}
-                placeholder="saisaharsh@saharsh.net"
+                placeholder="Enter your email address"
                 autoComplete="email"
               />
             </div>
