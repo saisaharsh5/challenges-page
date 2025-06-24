@@ -29,17 +29,7 @@ export const AchievementCard: React.FC<AchievementCardProps> = ({
 }) => {
   const { user } = useAuth();
 
-  // Debug logging
-  console.log('AchievementCard URL debug:', {
-    title,
-    url,
-    urlType: typeof url,
-    urlLength: url?.length,
-    urlTrimmed: url?.trim(),
-    urlTrimmedLength: url?.trim()?.length
-  });
-
-  // Check if URL is valid
+  // Robust URL validation
   const hasValidUrl = url && 
     typeof url === 'string' && 
     url.trim().length > 0 && 
@@ -47,7 +37,7 @@ export const AchievementCard: React.FC<AchievementCardProps> = ({
     url.trim() !== 'null' && 
     url.trim() !== 'undefined' &&
     !url.trim().startsWith('your_') && // Avoid placeholder URLs
-    (url.trim().startsWith('http://') || url.trim().startsWith('https://') || url.trim().includes('.'));
+    (url.trim().startsWith('http://') || url.trim().startsWith('https://'));
 
   const handleExploreClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -62,22 +52,14 @@ export const AchievementCard: React.FC<AchievementCardProps> = ({
     console.log('Opening URL:', cleanUrl);
     
     try {
-      // Ensure URL has protocol
-      let finalUrl = cleanUrl;
-      if (!cleanUrl.startsWith('http://') && !cleanUrl.startsWith('https://')) {
-        finalUrl = `https://${cleanUrl}`;
-      }
-      
-      console.log('Final URL with protocol:', finalUrl);
-      
-      // Try to open in new tab
-      const newWindow = window.open(finalUrl, '_blank', 'noopener,noreferrer');
+      // Open in new tab
+      const newWindow = window.open(cleanUrl, '_blank', 'noopener,noreferrer');
       
       if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
         console.warn('Popup blocked, trying alternative method');
         // Fallback: create a temporary link and click it
         const link = document.createElement('a');
-        link.href = finalUrl;
+        link.href = cleanUrl;
         link.target = '_blank';
         link.rel = 'noopener noreferrer';
         document.body.appendChild(link);
@@ -86,12 +68,6 @@ export const AchievementCard: React.FC<AchievementCardProps> = ({
       }
     } catch (error) {
       console.error('Error opening URL:', error);
-      // Last resort: try direct navigation
-      try {
-        window.location.href = cleanUrl.startsWith('http') ? cleanUrl : `https://${cleanUrl}`;
-      } catch (navError) {
-        console.error('Navigation also failed:', navError);
-      }
     }
   };
 
@@ -206,13 +182,6 @@ export const AchievementCard: React.FC<AchievementCardProps> = ({
             )}
           </div>
         </div>
-
-        {/* Debug info for admin users */}
-        {user && (
-          <div className="mt-2 text-xs text-gray-500 font-mono opacity-50">
-            URL Debug: {url ? `"${url}" (${typeof url}, len: ${url.length})` : 'null/undefined'} | Valid: {hasValidUrl ? 'Yes' : 'No'}
-          </div>
-        )}
 
         {/* Hover effect overlay */}
         <div className="absolute inset-0 bg-gradient-to-r from-terminal-green/5 via-transparent to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-xl pointer-events-none"></div>
