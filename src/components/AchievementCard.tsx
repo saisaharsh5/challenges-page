@@ -30,19 +30,20 @@ export const AchievementCard: React.FC<AchievementCardProps> = ({
   const { user } = useAuth();
 
   // Check if URL is valid (not empty, null, or just whitespace)
-  const hasValidUrl = url && url.trim() !== '' && url.trim() !== 'undefined' && url.trim() !== 'null';
+  const hasValidUrl = url && 
+    url.trim() !== '' && 
+    url.trim() !== 'undefined' && 
+    url.trim() !== 'null' &&
+    url.trim().length > 0;
 
-  const handleExploreClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
+  const handleExploreClick = () => {
     if (!hasValidUrl) {
-      console.log('No valid URL available');
+      console.log('No valid URL available:', url);
       return;
     }
 
     const cleanUrl = url!.trim();
-    console.log('Opening URL:', cleanUrl);
+    console.log('Attempting to open URL:', cleanUrl);
     
     try {
       // Ensure URL has protocol
@@ -51,7 +52,16 @@ export const AchievementCard: React.FC<AchievementCardProps> = ({
         finalUrl = `https://${cleanUrl}`;
       }
       
-      window.open(finalUrl, '_blank', 'noopener,noreferrer');
+      console.log('Final URL:', finalUrl);
+      
+      // Use window.open with proper parameters
+      const newWindow = window.open(finalUrl, '_blank', 'noopener,noreferrer');
+      
+      if (!newWindow) {
+        console.error('Failed to open new window - popup might be blocked');
+        // Fallback: try to navigate in same tab
+        window.location.href = finalUrl;
+      }
     } catch (error) {
       console.error('Error opening URL:', error);
     }
