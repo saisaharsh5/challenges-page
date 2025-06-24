@@ -5,6 +5,7 @@ import { HackTheBoxMachine } from '../../types';
 import { AchievementCard } from '../AchievementCard';
 import { LoadingSpinner } from '../LoadingSpinner';
 import { Modal } from '../Modal';
+import { EditableSectionHeader } from '../EditableSectionHeader';
 import { useAuth } from '../../hooks/useAuth';
 import toast from 'react-hot-toast';
 
@@ -149,25 +150,16 @@ export const HackTheBoxSection: React.FC = () => {
       </div>
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Section header */}
-        <div className="flex justify-between items-center mb-16">
-          <div className="space-y-4">
-            <div className="flex items-center space-x-4">
-              <div className="p-3 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-xl border border-purple-500/30">
-                <HardDrive className="h-8 w-8 text-purple-400" />
-              </div>
-              <div>
-                <h2 className="text-4xl font-mono font-bold text-white">
-                  Hack The Box Machines
-                </h2>
-                <p className="text-gray-400 font-mono text-lg mt-2">
-                  Advanced penetration testing challenges and machine exploitation
-                </p>
-              </div>
-            </div>
-            <div className="w-24 h-1 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"></div>
-          </div>
-          
+        {/* Editable Section header */}
+        <EditableSectionHeader
+          sectionKey="hackthebox"
+          defaultTitle="Hack The Box Machines"
+          defaultDescription="Advanced penetration testing challenges and machine exploitation"
+          icon={<HardDrive className="h-8 w-8 text-purple-400" />}
+          gradientFrom="from-purple-500/20"
+          gradientTo="to-pink-500/20"
+          iconColor="text-purple-400"
+        >
           {user && (
             <button
               onClick={() => setIsModalOpen(true)}
@@ -177,7 +169,7 @@ export const HackTheBoxSection: React.FC = () => {
               <span>Add Machine</span>
             </button>
           )}
-        </div>
+        </EditableSectionHeader>
 
         {/* Stats bar */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">

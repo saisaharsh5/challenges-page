@@ -36,6 +36,14 @@ export interface StaticContent {
   updated_at: string;
 }
 
+export interface SectionContent {
+  id: string;
+  section_key: string;
+  title: string;
+  description: string;
+  updated_at: string;
+}
+
 export interface User {
   id: string;
   email: string;

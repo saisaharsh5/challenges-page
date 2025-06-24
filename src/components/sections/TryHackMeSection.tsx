@@ -5,6 +5,7 @@ import { TryHackMeRoom } from '../../types';
 import { AchievementCard } from '../AchievementCard';
 import { LoadingSpinner } from '../LoadingSpinner';
 import { Modal } from '../Modal';
+import { EditableSectionHeader } from '../EditableSectionHeader';
 import { useAuth } from '../../hooks/useAuth';
 import toast from 'react-hot-toast';
 
@@ -144,25 +145,16 @@ export const TryHackMeSection: React.FC = () => {
       </div>
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Section header */}
-        <div className="flex justify-between items-center mb-16">
-          <div className="space-y-4">
-            <div className="flex items-center space-x-4">
-              <div className="p-3 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 rounded-xl border border-blue-500/30">
-                <Shield className="h-8 w-8 text-blue-400" />
-              </div>
-              <div>
-                <h2 className="text-4xl font-mono font-bold text-white">
-                  TryHackMe Rooms
-                </h2>
-                <p className="text-gray-400 font-mono text-lg mt-2">
-                  Hands-on cybersecurity challenges and learning paths
-                </p>
-              </div>
-            </div>
-            <div className="w-24 h-1 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full"></div>
-          </div>
-          
+        {/* Editable Section header */}
+        <EditableSectionHeader
+          sectionKey="tryhackme"
+          defaultTitle="TryHackMe Rooms"
+          defaultDescription="Hands-on cybersecurity challenges and learning paths"
+          icon={<Shield className="h-8 w-8 text-blue-400" />}
+          gradientFrom="from-blue-500/20"
+          gradientTo="to-cyan-500/20"
+          iconColor="text-blue-400"
+        >
           {user && (
             <button
               onClick={() => setIsModalOpen(true)}
@@ -172,7 +164,7 @@ export const TryHackMeSection: React.FC = () => {
               <span>Add Room</span>
             </button>
           )}
-        </div>
+        </EditableSectionHeader>
 
         {/* Stats bar */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
