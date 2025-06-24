@@ -29,6 +29,9 @@ export const AchievementCard: React.FC<AchievementCardProps> = ({
 }) => {
   const { user } = useAuth();
 
+  // Check if URL is valid (not empty, null, or just whitespace)
+  const hasValidUrl = url && url.trim() !== '';
+
   return (
     <div className="group relative">
       {/* Glowing border effect */}
@@ -113,18 +116,33 @@ export const AchievementCard: React.FC<AchievementCardProps> = ({
             </div>
           )}
           
-          {/* Action button */}
-          {url && (
-            <a
-              href={url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-terminal-green/10 to-blue-500/10 hover:from-terminal-green/20 hover:to-blue-500/20 text-terminal-green hover:text-white border border-terminal-green/30 hover:border-terminal-green/50 rounded-lg transition-all duration-300 text-sm font-mono font-medium group/link"
-            >
-              <span>Explore</span>
-              <ExternalLink className="h-4 w-4 group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 transition-transform duration-200" />
-            </a>
-          )}
+          {/* Action button - Show even if no URL for admin users to add one */}
+          <div className="flex items-center space-x-2">
+            {hasValidUrl ? (
+              <a
+                href={url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-terminal-green/10 to-blue-500/10 hover:from-terminal-green/20 hover:to-blue-500/20 text-terminal-green hover:text-white border border-terminal-green/30 hover:border-terminal-green/50 rounded-lg transition-all duration-300 text-sm font-mono font-medium group/link"
+              >
+                <span>Explore</span>
+                <ExternalLink className="h-4 w-4 group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 transition-transform duration-200" />
+              </a>
+            ) : user ? (
+              <button
+                onClick={onEdit}
+                className="inline-flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-gray-600/10 to-gray-500/10 hover:from-gray-600/20 hover:to-gray-500/20 text-gray-400 hover:text-gray-300 border border-gray-600/30 hover:border-gray-500/50 rounded-lg transition-all duration-300 text-sm font-mono font-medium"
+                title="Add URL"
+              >
+                <span>Add URL</span>
+                <Edit className="h-4 w-4" />
+              </button>
+            ) : (
+              <div className="inline-flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-gray-700/10 to-gray-600/10 text-gray-500 border border-gray-700/30 rounded-lg text-sm font-mono font-medium">
+                <span>No URL</span>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Hover effect overlay */}
