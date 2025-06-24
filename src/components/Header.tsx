@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Shield, Settings, LogOut } from 'lucide-react';
+import { Shield, Settings, LogOut, Home } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 
 export const Header: React.FC = () => {
@@ -22,6 +22,15 @@ export const Header: React.FC = () => {
           </Link>
           
           <div className="flex items-center space-x-4">
+            {/* Home button - Always visible */}
+            <Link
+              to="/"
+              className="flex items-center space-x-2 px-3 py-2 rounded-md bg-gray-800 hover:bg-gray-700 text-blue-400 hover:text-white transition-all duration-200"
+            >
+              <Home className="h-4 w-4" />
+              <span className="font-mono">Home</span>
+            </Link>
+
             {/* Admin-specific buttons - Only visible when authenticated */}
             {user ? (
               <>
