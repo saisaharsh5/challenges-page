@@ -18,7 +18,9 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     );
   }
 
-  if (!user) {
+  // Explicitly check for authenticated user
+  if (!user || !user.email) {
+    console.log('No authenticated user found, redirecting to login');
     return <Navigate to="/admin/login" replace />;
   }
 

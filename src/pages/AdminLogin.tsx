@@ -11,18 +11,26 @@ export const AdminLogin: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [showSetupInstructions, setShowSetupInstructions] = useState(false);
   const [copiedField, setCopiedField] = useState<string | null>(null);
-  const { user, signIn } = useAuth();
+  const { user, signIn, signOut } = useAuth();
   const navigate = useNavigate();
 
-  // Clear form when component mounts (including after logout)
+  // Clear form and ensure clean state when component mounts
   useEffect(() => {
-    setEmail('');
-    setPassword('');
-    setShowPassword(false);
-    setShowSetupInstructions(false);
-  }, []);
+    const initializeLoginPage = async () => {
+      // Clear any existing session to ensure clean state
+      await signOut();
+      
+      setEmail('');
+      setPassword('');
+      setShowPassword(false);
+      setShowSetupInstructions(false);
+    };
 
-  if (user) {
+    initializeLoginPage();
+  }, [signOut]);
+
+  // Only redirect if user is actually authenticated
+  if (user && user.email) {
     return <Navigate to="/admin" replace />;
   }
 
