@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '../lib/supabase';
+import { supabase, testConnection } from '../lib/supabase';
 
 interface SectionContent {
   id: string;
@@ -12,6 +12,7 @@ interface SectionContent {
 export const useSectionContent = (sectionKey: string) => {
   const [content, setContent] = useState<SectionContent | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchContent();
@@ -19,20 +20,32 @@ export const useSectionContent = (sectionKey: string) => {
 
   const fetchContent = async () => {
     try {
-      const { data, error } = await supabase
+      setError(null);
+      
+      // Test connection first
+      const connectionOk = await testConnection();
+      if (!connectionOk) {
+        setError('Unable to connect to database');
+        setLoading(false);
+        return;
+      }
+
+      const { data, error: fetchError } = await supabase
         .from('section_content')
         .select('*')
         .eq('section_key', sectionKey)
         .maybeSingle();
 
-      if (error) {
-        console.error('Error fetching section content:', error);
+      if (fetchError) {
+        console.error('Error fetching section content:', fetchError);
+        setError(`Database error: ${fetchError.message}`);
         return;
       }
 
       setContent(data);
     } catch (error) {
       console.error('Error:', error);
+      setError(error instanceof Error ? error.message : 'Unknown error occurred');
     } finally {
       setLoading(false);
     }
@@ -40,15 +53,18 @@ export const useSectionContent = (sectionKey: string) => {
 
   const updateContent = async (updates: Partial<Pick<SectionContent, 'title' | 'description'>>) => {
     try {
-      const { error } = await supabase
+      setError(null);
+      
+      const { error: updateError } = await supabase
         .from('section_content')
         .upsert({ 
           section_key: sectionKey, 
           ...updates 
         }, { onConflict: 'section_key' });
 
-      if (error) {
-        console.error('Error updating section content:', error);
+      if (updateError) {
+        console.error('Error updating section content:', updateError);
+        setError(`Update error: ${updateError.message}`);
         return false;
       }
 
@@ -57,9 +73,10 @@ export const useSectionContent = (sectionKey: string) => {
       return true;
     } catch (error) {
       console.error('Error:', error);
+      setError(error instanceof Error ? error.message : 'Unknown error occurred');
       return false;
     }
   };
 
-  return { content, updateContent, loading, refetch: fetchContent };
+  return { content, updateContent, loading, error, refetch: fetchContent };
 };
