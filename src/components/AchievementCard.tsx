@@ -30,7 +30,32 @@ export const AchievementCard: React.FC<AchievementCardProps> = ({
   const { user } = useAuth();
 
   // Check if URL is valid (not empty, null, or just whitespace)
-  const hasValidUrl = url && url.trim() !== '';
+  const hasValidUrl = url && url.trim() !== '' && url.trim() !== 'undefined' && url.trim() !== 'null';
+
+  const handleExploreClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (!hasValidUrl) {
+      console.log('No valid URL available');
+      return;
+    }
+
+    const cleanUrl = url!.trim();
+    console.log('Opening URL:', cleanUrl);
+    
+    try {
+      // Ensure URL has protocol
+      let finalUrl = cleanUrl;
+      if (!cleanUrl.startsWith('http://') && !cleanUrl.startsWith('https://')) {
+        finalUrl = `https://${cleanUrl}`;
+      }
+      
+      window.open(finalUrl, '_blank', 'noopener,noreferrer');
+    } catch (error) {
+      console.error('Error opening URL:', error);
+    }
+  };
 
   return (
     <div className="group relative">
@@ -116,18 +141,17 @@ export const AchievementCard: React.FC<AchievementCardProps> = ({
             </div>
           )}
           
-          {/* Action button - Show even if no URL for admin users to add one */}
+          {/* Action button */}
           <div className="flex items-center space-x-2">
             {hasValidUrl ? (
-              <a
-                href={url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-terminal-green/10 to-blue-500/10 hover:from-terminal-green/20 hover:to-blue-500/20 text-terminal-green hover:text-white border border-terminal-green/30 hover:border-terminal-green/50 rounded-lg transition-all duration-300 text-sm font-mono font-medium group/link"
+              <button
+                onClick={handleExploreClick}
+                className="inline-flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-terminal-green/10 to-blue-500/10 hover:from-terminal-green/20 hover:to-blue-500/20 text-terminal-green hover:text-white border border-terminal-green/30 hover:border-terminal-green/50 rounded-lg transition-all duration-300 text-sm font-mono font-medium group/link cursor-pointer"
+                title={`Open: ${url}`}
               >
                 <span>Explore</span>
                 <ExternalLink className="h-4 w-4 group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 transition-transform duration-200" />
-              </a>
+              </button>
             ) : user ? (
               <button
                 onClick={onEdit}
