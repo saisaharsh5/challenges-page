@@ -13,9 +13,11 @@ export const HomePage: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="max-w-3xl mx-auto">
             <h1 className="text-5xl md:text-6xl font-mono font-bold text-white mb-6 leading-tight">
-              <span className="text-terminal-green">{'>'}</span> Cybersecurity
-              <br />
-              <span className="text-terminal-green">{'>'}</span> Portfolio
+              <EditableText
+                contentKey="hero-title"
+                defaultText="> Cybersecurity\n> Portfolio"
+                className="whitespace-pre-line"
+              />
             </h1>
             <div className="text-xl text-gray-300 leading-relaxed mb-8">
               <EditableText
