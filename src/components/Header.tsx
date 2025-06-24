@@ -12,14 +12,27 @@ export const Header: React.FC = () => {
     try {
       await signOut();
       toast.success('Logged out successfully');
+      
+      // Force navigate to home and reload
       navigate('/', { replace: true });
-      // Force page reload to ensure clean state
-      window.location.reload();
+      
+      // Force page reload after a short delay
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 100);
     } catch (error) {
       console.error('Logout error:', error);
       toast.error('Error logging out');
+      
+      // Force reload even on error
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 100);
     }
   };
+
+  // Debug log to see user state
+  console.log('Header - User state:', user?.email || 'No user');
 
   return (
     <header className="bg-gray-900 border-b border-terminal-green/30 sticky top-0 z-50">
@@ -42,7 +55,7 @@ export const Header: React.FC = () => {
               <span className="font-mono">Home</span>
             </Link>
 
-            {/* Admin-specific buttons - Only visible when authenticated */}
+            {/* Admin-specific buttons - Only visible when authenticated with email */}
             {user && user.email ? (
               <>
                 <Link

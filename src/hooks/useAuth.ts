@@ -7,28 +7,32 @@ export const useAuth = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Force clear any existing session on mount
+    // Aggressive auth state clearing on mount
     const initializeAuth = async () => {
       try {
-        // Force sign out to clear any cached sessions
-        await supabase.auth.signOut();
-        
-        // Clear local storage
+        // Clear all possible storage locations
         localStorage.clear();
         sessionStorage.clear();
         
-        // Wait a moment for the sign out to complete
-        await new Promise(resolve => setTimeout(resolve, 100));
+        // Clear cookies by setting them to expire
+        document.cookie.split(";").forEach((c) => {
+          const eqPos = c.indexOf("=");
+          const name = eqPos > -1 ? c.substr(0, eqPos) : c;
+          document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+          document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=" + window.location.hostname;
+        });
         
-        // Now get the session (should be null)
-        const { data: { session }, error } = await supabase.auth.getSession();
+        // Force sign out multiple times to ensure it takes
+        await supabase.auth.signOut({ scope: 'global' });
+        await supabase.auth.signOut();
         
-        if (error) {
-          console.error('Error getting session:', error);
-          setUser(null);
-        } else {
-          setUser(session?.user ?? null);
-        }
+        // Wait for sign out to complete
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // Force set user to null
+        setUser(null);
+        
+        console.log('Auth state aggressively cleared');
       } catch (error) {
         console.error('Auth initialization error:', error);
         setUser(null);
@@ -42,8 +46,14 @@ export const useAuth = () => {
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('Auth state changed:', event, session?.user?.email);
-        setUser(session?.user ?? null);
+        console.log('Auth state changed:', event, session?.user?.email || 'no user');
+        
+        // Only set user if we have a valid session with email
+        if (session?.user?.email && event === 'SIGNED_IN') {
+          setUser(session.user);
+        } else {
+          setUser(null);
+        }
         setLoading(false);
       }
     );
@@ -53,6 +63,9 @@ export const useAuth = () => {
 
   const signIn = async (email: string, password: string) => {
     try {
+      // Clear any existing session first
+      await supabase.auth.signOut();
+      
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -66,23 +79,28 @@ export const useAuth = () => {
 
   const signOut = async () => {
     try {
-      const { error } = await supabase.auth.signOut();
+      // Global sign out to clear all sessions
+      const { error } = await supabase.auth.signOut({ scope: 'global' });
       
-      // Force clear user state and storage
+      // Force clear user state immediately
       setUser(null);
+      
+      // Clear all storage
       localStorage.clear();
       sessionStorage.clear();
       
-      // Clear any Supabase related items from storage
-      Object.keys(localStorage).forEach(key => {
-        if (key.includes('supabase') || key.includes('auth')) {
-          localStorage.removeItem(key);
-        }
+      // Clear cookies
+      document.cookie.split(";").forEach((c) => {
+        const eqPos = c.indexOf("=");
+        const name = eqPos > -1 ? c.substr(0, eqPos) : c;
+        document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+        document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=" + window.location.hostname;
       });
       
       return { error };
     } catch (error) {
       console.error('Sign out error:', error);
+      setUser(null); // Force clear even on error
       return { error };
     }
   };

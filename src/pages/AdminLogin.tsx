@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { Shield, Eye, EyeOff, User, Lock, AlertCircle, ExternalLink, Copy, Check } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
+import { supabase } from '../lib/supabase';
 import toast from 'react-hot-toast';
 
 export const AdminLogin: React.FC = () => {
@@ -14,12 +15,24 @@ export const AdminLogin: React.FC = () => {
   const { user, signIn, signOut } = useAuth();
   const navigate = useNavigate();
 
-  // Force clear any existing session when login page loads
+  // Force clear session when login page loads
   useEffect(() => {
     const initializeLoginPage = async () => {
       try {
-        // Force sign out any existing session
-        await signOut();
+        // Force global sign out
+        await supabase.auth.signOut({ scope: 'global' });
+        
+        // Clear all storage
+        localStorage.clear();
+        sessionStorage.clear();
+        
+        // Clear cookies
+        document.cookie.split(";").forEach((c) => {
+          const eqPos = c.indexOf("=");
+          const name = eqPos > -1 ? c.substr(0, eqPos) : c;
+          document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+          document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=" + window.location.hostname;
+        });
         
         // Clear form
         setEmail('');
@@ -27,17 +40,18 @@ export const AdminLogin: React.FC = () => {
         setShowPassword(false);
         setShowSetupInstructions(false);
         
-        console.log('Login page initialized - session cleared');
+        console.log('Login page initialized - all auth data cleared');
       } catch (error) {
         console.error('Error initializing login page:', error);
       }
     };
 
     initializeLoginPage();
-  }, [signOut]);
+  }, []);
 
   // Only redirect if user is actually authenticated and has email
-  if (user && user.email && user.aud === 'authenticated') {
+  if (user && user.email) {
+    console.log('User authenticated, redirecting to admin');
     return <Navigate to="/admin" replace />;
   }
 

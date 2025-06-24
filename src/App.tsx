@@ -10,30 +10,34 @@ import { supabase } from './lib/supabase';
 
 function App() {
   useEffect(() => {
-    // Force clear authentication state on app initialization
-    const clearAuthState = async () => {
+    // Aggressive session clearing on app start
+    const clearAllAuthData = async () => {
       try {
-        // Force sign out to clear any persistent sessions
-        await supabase.auth.signOut();
-        
         // Clear all storage
         localStorage.clear();
         sessionStorage.clear();
         
-        // Clear any Supabase related items from storage
-        Object.keys(localStorage).forEach(key => {
-          if (key.includes('supabase') || key.includes('auth')) {
-            localStorage.removeItem(key);
-          }
+        // Clear cookies
+        document.cookie.split(";").forEach((c) => {
+          const eqPos = c.indexOf("=");
+          const name = eqPos > -1 ? c.substr(0, eqPos) : c;
+          document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+          document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=" + window.location.hostname;
         });
         
-        console.log('Authentication state cleared');
+        // Force global sign out
+        await supabase.auth.signOut({ scope: 'global' });
+        
+        console.log('All authentication data cleared on app start');
       } catch (error) {
-        console.error('Error clearing auth state:', error);
+        console.error('Error clearing auth data:', error);
       }
     };
 
-    clearAuthState();
+    // Only clear auth data if we're not on the admin page
+    if (!window.location.pathname.includes('/admin')) {
+      clearAllAuthData();
+    }
   }, []);
 
   return (
