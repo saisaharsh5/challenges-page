@@ -29,21 +29,37 @@ export const AchievementCard: React.FC<AchievementCardProps> = ({
 }) => {
   const { user } = useAuth();
 
-  // Check if URL is valid (not empty, null, or just whitespace)
-  const hasValidUrl = url && 
-    url.trim() !== '' && 
-    url.trim() !== 'undefined' && 
-    url.trim() !== 'null' &&
-    url.trim().length > 0;
+  // Debug logging
+  console.log('AchievementCard URL debug:', {
+    title,
+    url,
+    urlType: typeof url,
+    urlLength: url?.length,
+    urlTrimmed: url?.trim(),
+    urlTrimmedLength: url?.trim()?.length
+  });
 
-  const handleExploreClick = () => {
-    if (!hasValidUrl) {
-      console.log('No valid URL available:', url);
+  // Check if URL is valid
+  const hasValidUrl = url && 
+    typeof url === 'string' && 
+    url.trim().length > 0 && 
+    url.trim() !== '' && 
+    url.trim() !== 'null' && 
+    url.trim() !== 'undefined' &&
+    !url.trim().startsWith('your_') && // Avoid placeholder URLs
+    (url.trim().startsWith('http://') || url.trim().startsWith('https://') || url.trim().includes('.'));
+
+  const handleExploreClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (!hasValidUrl || !url) {
+      console.error('Invalid URL for explore button:', { url, hasValidUrl });
       return;
     }
 
-    const cleanUrl = url!.trim();
-    console.log('Attempting to open URL:', cleanUrl);
+    const cleanUrl = url.trim();
+    console.log('Opening URL:', cleanUrl);
     
     try {
       // Ensure URL has protocol
@@ -52,18 +68,30 @@ export const AchievementCard: React.FC<AchievementCardProps> = ({
         finalUrl = `https://${cleanUrl}`;
       }
       
-      console.log('Final URL:', finalUrl);
+      console.log('Final URL with protocol:', finalUrl);
       
-      // Use window.open with proper parameters
+      // Try to open in new tab
       const newWindow = window.open(finalUrl, '_blank', 'noopener,noreferrer');
       
-      if (!newWindow) {
-        console.error('Failed to open new window - popup might be blocked');
-        // Fallback: try to navigate in same tab
-        window.location.href = finalUrl;
+      if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
+        console.warn('Popup blocked, trying alternative method');
+        // Fallback: create a temporary link and click it
+        const link = document.createElement('a');
+        link.href = finalUrl;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
       }
     } catch (error) {
       console.error('Error opening URL:', error);
+      // Last resort: try direct navigation
+      try {
+        window.location.href = cleanUrl.startsWith('http') ? cleanUrl : `https://${cleanUrl}`;
+      } catch (navError) {
+        console.error('Navigation also failed:', navError);
+      }
     }
   };
 
@@ -178,6 +206,13 @@ export const AchievementCard: React.FC<AchievementCardProps> = ({
             )}
           </div>
         </div>
+
+        {/* Debug info for admin users */}
+        {user && (
+          <div className="mt-2 text-xs text-gray-500 font-mono opacity-50">
+            URL Debug: {url ? `"${url}" (${typeof url}, len: ${url.length})` : 'null/undefined'} | Valid: {hasValidUrl ? 'Yes' : 'No'}
+          </div>
+        )}
 
         {/* Hover effect overlay */}
         <div className="absolute inset-0 bg-gradient-to-r from-terminal-green/5 via-transparent to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-xl pointer-events-none"></div>
