@@ -1,5 +1,5 @@
 import React from 'react';
-import { ExternalLink, Edit, Trash2, Calendar, Award, Target, Globe, Link as LinkIcon } from 'lucide-react';
+import { ExternalLink, Edit, Trash2, Calendar, Award, Target, Link as LinkIcon } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 
 interface AchievementCardProps {
@@ -85,15 +85,6 @@ export const AchievementCard: React.FC<AchievementCardProps> = ({
     }
   };
 
-  const getUrlDomain = (urlString: string): string => {
-    try {
-      const url = new URL(urlString);
-      return url.hostname.replace('www.', '');
-    } catch {
-      return 'External Link';
-    }
-  };
-
   return (
     <div className="group relative">
       {/* Enhanced glowing border effect */}
@@ -123,12 +114,6 @@ export const AchievementCard: React.FC<AchievementCardProps> = ({
                 <span className="inline-flex items-center px-2 py-1 text-xs font-mono bg-gray-700/60 text-gray-300 rounded-md border border-gray-600/50 backdrop-blur-sm">
                   <Target className="h-3 w-3 mr-1" />
                   {category}
-                </span>
-              )}
-              {hasValidUrl && (
-                <span className="inline-flex items-center px-2 py-1 text-xs font-mono bg-blue-500/20 text-blue-400 rounded-md border border-blue-500/30">
-                  <Globe className="h-3 w-3 mr-1" />
-                  {getUrlDomain(url)}
                 </span>
               )}
             </div>
@@ -217,7 +202,6 @@ export const AchievementCard: React.FC<AchievementCardProps> = ({
               </button>
             ) : (
               <div className="inline-flex items-center space-x-2 px-4 py-2.5 bg-gradient-to-r from-gray-700/15 to-gray-600/15 text-gray-500 border border-gray-700/40 rounded-lg text-sm font-mono font-medium shadow-lg backdrop-blur-sm">
-                <Globe className="h-4 w-4" />
                 <span>No URL</span>
               </div>
             )}
