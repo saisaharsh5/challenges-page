@@ -34,15 +34,7 @@ export const useAuth = () => {
       async (event, session) => {
         console.log('Auth state changed:', event, session?.user?.email || 'no user');
         
-        if (event === 'SIGNED_IN' && session?.user) {
-          console.log('User signed in:', session.user.email);
-          setUser(session.user);
-        } else if (event === 'SIGNED_OUT') {
-          console.log('User signed out');
-          setUser(null);
-        } else {
-          setUser(session?.user ?? null);
-        }
+        setUser(session?.user ?? null);
         setLoading(false);
       }
     );
@@ -65,6 +57,7 @@ export const useAuth = () => {
       }
       
       console.log('Sign in successful:', data.user?.email);
+      setUser(data.user);
       return { data, error: null };
     } catch (error) {
       console.error('Sign in exception:', error);
@@ -78,21 +71,20 @@ export const useAuth = () => {
     try {
       setLoading(true);
       
-      // Global sign out to clear all sessions
-      const { error } = await supabase.auth.signOut({ scope: 'global' });
+      const { error } = await supabase.auth.signOut();
       
-      // Force clear user state immediately
+      if (error) {
+        console.error('Sign out error:', error);
+      }
+      
+      // Clear user state
       setUser(null);
-      
-      // Clear storage
-      localStorage.removeItem('supabase.auth.token');
-      sessionStorage.clear();
       
       console.log('User signed out successfully');
       return { error };
     } catch (error) {
       console.error('Sign out error:', error);
-      setUser(null); // Force clear even on error
+      setUser(null);
       return { error };
     } finally {
       setLoading(false);

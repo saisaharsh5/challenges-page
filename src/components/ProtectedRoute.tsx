@@ -18,12 +18,9 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     );
   }
 
-  // Check if user is authenticated
   if (!user) {
-    console.log('No authenticated user found, redirecting to login');
     return <Navigate to="/admin/login" replace />;
   }
 
-  console.log('User authenticated, showing protected content');
   return <>{children}</>;
 };

@@ -10,17 +10,19 @@ export const Header: React.FC = () => {
 
   const handleSignOut = async () => {
     try {
-      await signOut();
-      toast.success('Logged out successfully');
-      navigate('/', { replace: true });
+      const { error } = await signOut();
+      if (error) {
+        console.error('Logout error:', error);
+        toast.error('Error logging out');
+      } else {
+        toast.success('Logged out successfully');
+        navigate('/', { replace: true });
+      }
     } catch (error) {
       console.error('Logout error:', error);
       toast.error('Error logging out');
     }
   };
-
-  // Debug log to see user state
-  console.log('Header - User state:', user?.email || 'No user');
 
   return (
     <header className="bg-gray-900 border-b border-terminal-green/30 sticky top-0 z-50">

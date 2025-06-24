@@ -22,10 +22,12 @@ export const AdminLogin: React.FC = () => {
   }, []);
 
   // Redirect if already authenticated
-  if (!authLoading && user) {
-    console.log('User authenticated, redirecting to admin dashboard');
-    return <Navigate to="/admin" replace />;
-  }
+  useEffect(() => {
+    if (!authLoading && user) {
+      console.log('User authenticated, redirecting to admin dashboard');
+      navigate('/admin', { replace: true });
+    }
+  }, [user, authLoading, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,10 +57,8 @@ export const AdminLogin: React.FC = () => {
         console.log('Login successful for user:', data.user.email);
         toast.success('Login successful!');
         
-        // Small delay to ensure auth state is updated
-        setTimeout(() => {
-          navigate('/admin', { replace: true });
-        }, 100);
+        // Navigate immediately since useEffect will handle the redirect
+        navigate('/admin', { replace: true });
       }
     } catch (error: any) {
       console.error('Login exception:', error);
@@ -78,6 +78,10 @@ export const AdminLogin: React.FC = () => {
         </div>
       </div>
     );
+  }
+
+  if (user) {
+    return <Navigate to="/admin" replace />;
   }
 
   return (
