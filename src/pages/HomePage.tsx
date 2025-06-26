@@ -27,7 +27,7 @@ export const HomePage: React.FC = () => {
   const { user } = useAuth();
   const { content: aboutTitle, updateContent: updateAboutTitle } = useStaticContent('about-title');
 
-  const defaultAboutTitle = "> My Practical Learning Journey";
+  const defaultAboutTitle = "> My Practical World Journey";
   const displayAboutTitle = aboutTitle || defaultAboutTitle;
 
   useEffect(() => {
@@ -96,21 +96,21 @@ export const HomePage: React.FC = () => {
             <h1 className="text-5xl md:text-6xl font-mono font-bold text-white mb-6 leading-tight">
               <EditableText
                 contentKey="hero-title"
-                defaultText="> Practical Learning\n> Portfolio"
+                defaultText="> Practical World\n> Portfolio"
                 className="whitespace-pre-line"
               />
             </h1>
             <div className="text-xl text-gray-300 leading-relaxed mb-8">
               <EditableText
                 contentKey="hero-description"
-                defaultText="Documenting my hands-on practical learning in cybersecurity through TryHackMe challenges, Hack The Box machines, and CTF competitions. Each lab completed and technique mastered represents real-world skills gained through practical application and experimentation."
+                defaultText="Welcome to my practical world of cybersecurity learning. Explore real-world scenarios through TryHackMe challenges, Hack The Box machines, and CTF competitions. Each hands-on experience in this practical world builds genuine skills through direct application and real-world problem solving."
                 className="block"
               />
             </div>
             <div className="inline-block">
               <div className="flex items-center space-x-2 text-terminal-green font-mono">
                 <span className="animate-pulse">█</span>
-                <span>Learning through practical application</span>
+                <span>Exploring the practical world of cybersecurity</span>
               </div>
             </div>
           </div>
@@ -122,10 +122,10 @@ export const HomePage: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-8">
             <h2 className="text-3xl font-mono font-bold text-white mb-4">
-              <span className="text-terminal-green">{'>'}</span> Practical Learning Progress
+              <span className="text-terminal-green">{'>'}</span> Practical World Progress
             </h2>
             <p className="text-gray-400 font-mono">
-              Tracking hands-on cybersecurity skills through practical exercises and real-world scenarios
+              Tracking real-world cybersecurity skills through hands-on practical world experiences
             </p>
           </div>
           
@@ -138,7 +138,7 @@ export const HomePage: React.FC = () => {
                   <p className="text-2xl font-mono font-bold text-white">
                     {loading ? '...' : stats.total}
                   </p>
-                  <p className="text-xs font-mono text-terminal-green">Practical Labs</p>
+                  <p className="text-xs font-mono text-terminal-green">Real-World Labs</p>
                 </div>
               </div>
             </div>
@@ -164,7 +164,7 @@ export const HomePage: React.FC = () => {
                   <p className="text-2xl font-mono font-bold text-white">
                     {loading ? '...' : stats.hackthebox}
                   </p>
-                  <p className="text-xs font-mono text-purple-500">Lab Machines</p>
+                  <p className="text-xs font-mono text-purple-500">Real Machines</p>
                 </div>
               </div>
             </div>
@@ -177,7 +177,7 @@ export const HomePage: React.FC = () => {
                   <p className="text-2xl font-mono font-bold text-white">
                     {loading ? '...' : stats.ctf}
                   </p>
-                  <p className="text-xs font-mono text-yellow-500">Practical Challenges</p>
+                  <p className="text-xs font-mono text-yellow-500">World Challenges</p>
                 </div>
               </div>
             </div>
@@ -246,7 +246,7 @@ export const HomePage: React.FC = () => {
             <div className="text-gray-300 leading-relaxed">
               <EditableText
                 contentKey="about-me"
-                defaultText="I am passionate about practical cybersecurity learning through hands-on experience. My approach focuses on learning by doing - working through real-world scenarios in TryHackMe labs, exploiting vulnerable machines on Hack The Box, and solving practical challenges in CTF competitions. Each exercise builds my technical skills in penetration testing, vulnerability assessment, and security analysis through direct application rather than just theory."
+                defaultText="Welcome to my practical world of cybersecurity exploration. This is where theory meets reality through hands-on experiences in real-world scenarios. From TryHackMe's guided learning environments to Hack The Box's challenging machines, and competitive CTF events - each experience in this practical world builds genuine expertise through direct engagement with actual security challenges and vulnerabilities."
                 className="block min-h-[120px]"
               />
             </div>

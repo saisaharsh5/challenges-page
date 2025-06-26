@@ -31,7 +31,7 @@ export const Header: React.FC = () => {
           <Link to="/" className="flex items-center space-x-2 group">
             <Shield className="h-8 w-8 text-terminal-green group-hover:animate-pulse" />
             <span className="text-xl font-mono font-bold text-white group-hover:text-terminal-green transition-colors">
-              CyberSec Portfolio
+              Practical World
             </span>
           </Link>
           
