@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { supabase, testConnection } from '../lib/supabase';
+import { supabase } from '../lib/supabase';
 
 interface SectionContent {
   id: string;
@@ -22,14 +22,6 @@ export const useSectionContent = (sectionKey: string) => {
     try {
       setError(null);
       
-      // Test connection first
-      const connectionOk = await testConnection();
-      if (!connectionOk) {
-        setError('Unable to connect to database');
-        setLoading(false);
-        return;
-      }
-
       const { data, error: fetchError } = await supabase
         .from('section_content')
         .select('*')
