@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { BarChart3, Database, Shield, Users, HardDrive, Zap, Trophy, Target, Clock } from 'lucide-react';
+import { BarChart3, Database, Shield, Users, HardDrive, Zap, Trophy, Target, Clock, Edit, Save, X } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { EditableText } from '../components/EditableText';
 import { TryHackMeSection } from '../components/sections/TryHackMeSection';
 import { HackTheBoxSection } from '../components/sections/HackTheBoxSection';
 import { CTFSection } from '../components/sections/CTFSection';
 import { ReturnToMainButton } from '../components/ReturnToMainButton';
+import { useAuth } from '../hooks/useAuth';
+import { useStaticContent } from '../hooks/useStaticContent';
+import toast from 'react-hot-toast';
 
 interface Stats {
   tryhackme: number;
@@ -17,6 +20,15 @@ interface Stats {
 export const HomePage: React.FC = () => {
   const [stats, setStats] = useState<Stats>({ tryhackme: 0, hackthebox: 0, ctf: 0, total: 0 });
   const [loading, setLoading] = useState(true);
+  const [isEditingAboutTitle, setIsEditingAboutTitle] = useState(false);
+  const [editAboutTitle, setEditAboutTitle] = useState('');
+  const [saving, setSaving] = useState(false);
+  
+  const { user } = useAuth();
+  const { content: aboutTitle, updateContent: updateAboutTitle } = useStaticContent('about-title');
+
+  const defaultAboutTitle = "> About Me";
+  const displayAboutTitle = aboutTitle || defaultAboutTitle;
 
   useEffect(() => {
     fetchStats();
@@ -45,6 +57,34 @@ export const HomePage: React.FC = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleEditAboutTitle = () => {
+    setEditAboutTitle(displayAboutTitle);
+    setIsEditingAboutTitle(true);
+  };
+
+  const handleSaveAboutTitle = async () => {
+    if (!editAboutTitle.trim()) {
+      toast.error('Title cannot be empty');
+      return;
+    }
+
+    setSaving(true);
+    const success = await updateAboutTitle(editAboutTitle.trim());
+
+    if (success) {
+      toast.success('About title updated successfully');
+      setIsEditingAboutTitle(false);
+    } else {
+      toast.error('Failed to update about title');
+    }
+    setSaving(false);
+  };
+
+  const handleCancelAboutTitle = () => {
+    setIsEditingAboutTitle(false);
+    setEditAboutTitle('');
   };
 
   return (
@@ -148,9 +188,60 @@ export const HomePage: React.FC = () => {
       {/* About Section */}
       <section className="py-16 bg-gray-900 border-t border-terminal-green/20">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-mono font-bold text-white mb-8 text-center">
-            <span className="text-terminal-green">{'>'}</span> About Me
-          </h2>
+          <div className="relative group mb-8">
+            {isEditingAboutTitle ? (
+              <div className="text-center">
+                <input
+                  type="text"
+                  value={editAboutTitle}
+                  onChange={(e) => setEditAboutTitle(e.target.value)}
+                  className="text-3xl font-mono font-bold bg-gray-800 border border-terminal-green rounded px-3 py-2 text-white text-center w-full max-w-md"
+                  placeholder="About section title..."
+                  disabled={saving}
+                />
+                <div className="flex justify-center space-x-2 mt-4">
+                  <button
+                    onClick={handleSaveAboutTitle}
+                    disabled={saving || !editAboutTitle.trim()}
+                    className="flex items-center space-x-2 px-4 py-2 bg-terminal-green text-black rounded-lg hover:bg-terminal-green/80 transition-colors font-mono font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {saving ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-black"></div>
+                        <span>Saving...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Save className="h-4 w-4" />
+                        <span>Save</span>
+                      </>
+                    )}
+                  </button>
+                  <button
+                    onClick={handleCancelAboutTitle}
+                    disabled={saving}
+                    className="flex items-center space-x-2 px-4 py-2 text-gray-400 hover:text-white transition-colors font-mono"
+                  >
+                    <X className="h-4 w-4" />
+                    <span>Cancel</span>
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <h2 className="text-3xl font-mono font-bold text-white mb-8 text-center">
+                {displayAboutTitle}
+                {user && (
+                  <button
+                    onClick={handleEditAboutTitle}
+                    className="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-2 bg-gray-800 hover:bg-gray-700 text-terminal-green hover:text-white rounded-full border border-gray-600 hover:border-terminal-green"
+                    title="Edit about title"
+                  >
+                    <Edit className="h-4 w-4" />
+                  </button>
+                )}
+              </h2>
+            )}
+          </div>
           <div className="bg-gray-800 border border-gray-700 rounded-lg p-8">
             <div className="text-gray-300 leading-relaxed">
               <EditableText
