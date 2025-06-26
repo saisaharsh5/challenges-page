@@ -27,7 +27,7 @@ export const HomePage: React.FC = () => {
   const { user } = useAuth();
   const { content: aboutTitle, updateContent: updateAboutTitle } = useStaticContent('about-title');
 
-  const defaultAboutTitle = "> About Me";
+  const defaultAboutTitle = "> My Cybersecurity Journey";
   const displayAboutTitle = aboutTitle || defaultAboutTitle;
 
   useEffect(() => {
@@ -96,21 +96,21 @@ export const HomePage: React.FC = () => {
             <h1 className="text-5xl md:text-6xl font-mono font-bold text-white mb-6 leading-tight">
               <EditableText
                 contentKey="hero-title"
-                defaultText="> Cybersecurity\n> Portfolio"
+                defaultText="> Ethical Hacking\n> Learning Portfolio"
                 className="whitespace-pre-line"
               />
             </h1>
             <div className="text-xl text-gray-300 leading-relaxed mb-8">
               <EditableText
                 contentKey="hero-description"
-                defaultText="Welcome to my cybersecurity journey. Explore my achievements from TryHackMe rooms, Hack The Box machines, and CTF competitions. Every challenge conquered, every vulnerability discovered, and every flag captured represents a step forward in the endless pursuit of security knowledge."
+                defaultText="Documenting my hands-on cybersecurity learning journey through TryHackMe rooms, Hack The Box machines, and CTF competitions. Each challenge solved and vulnerability discovered represents practical skills gained in ethical hacking, penetration testing, and digital forensics."
                 className="block"
               />
             </div>
             <div className="inline-block">
               <div className="flex items-center space-x-2 text-terminal-green font-mono">
                 <span className="animate-pulse">█</span>
-                <span>Ready to hack the planet</span>
+                <span>Learning to secure the digital world</span>
               </div>
             </div>
           </div>
@@ -122,10 +122,10 @@ export const HomePage: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-8">
             <h2 className="text-3xl font-mono font-bold text-white mb-4">
-              <span className="text-terminal-green">{'>'}</span> Achievement Overview
+              <span className="text-terminal-green">{'>'}</span> Learning Progress
             </h2>
             <p className="text-gray-400 font-mono">
-              A snapshot of my cybersecurity journey and accomplishments
+              Tracking my practical cybersecurity education and skill development
             </p>
           </div>
           
@@ -138,7 +138,7 @@ export const HomePage: React.FC = () => {
                   <p className="text-2xl font-mono font-bold text-white">
                     {loading ? '...' : stats.total}
                   </p>
-                  <p className="text-xs font-mono text-terminal-green">Achievements</p>
+                  <p className="text-xs font-mono text-terminal-green">Challenges Completed</p>
                 </div>
               </div>
             </div>
@@ -151,7 +151,7 @@ export const HomePage: React.FC = () => {
                   <p className="text-2xl font-mono font-bold text-white">
                     {loading ? '...' : stats.tryhackme}
                   </p>
-                  <p className="text-xs font-mono text-blue-500">Rooms</p>
+                  <p className="text-xs font-mono text-blue-500">Learning Rooms</p>
                 </div>
               </div>
             </div>
@@ -160,11 +160,11 @@ export const HomePage: React.FC = () => {
               <div className="flex items-center">
                 <HardDrive className="h-8 w-8 text-purple-500" />
                 <div className="ml-4">
-                  <p className="text-sm font-mono text-gray-400">HTB</p>
+                  <p className="text-sm font-mono text-gray-400">Hack The Box</p>
                   <p className="text-2xl font-mono font-bold text-white">
                     {loading ? '...' : stats.hackthebox}
                   </p>
-                  <p className="text-xs font-mono text-purple-500">Machines</p>
+                  <p className="text-xs font-mono text-purple-500">Machines Pwned</p>
                 </div>
               </div>
             </div>
@@ -173,11 +173,11 @@ export const HomePage: React.FC = () => {
               <div className="flex items-center">
                 <Trophy className="h-8 w-8 text-yellow-500" />
                 <div className="ml-4">
-                  <p className="text-sm font-mono text-gray-400">CTF</p>
+                  <p className="text-sm font-mono text-gray-400">CTF Events</p>
                   <p className="text-2xl font-mono font-bold text-white">
                     {loading ? '...' : stats.ctf}
                   </p>
-                  <p className="text-xs font-mono text-yellow-500">Challenges</p>
+                  <p className="text-xs font-mono text-yellow-500">Competitions</p>
                 </div>
               </div>
             </div>
@@ -246,7 +246,7 @@ export const HomePage: React.FC = () => {
             <div className="text-gray-300 leading-relaxed">
               <EditableText
                 contentKey="about-me"
-                defaultText="I am a passionate cybersecurity enthusiast dedicated to understanding the intricate world of digital security. My journey spans across various platforms including TryHackMe, Hack The Box, and numerous CTF competitions. Each challenge I tackle enhances my skills in penetration testing, vulnerability assessment, and ethical hacking. I believe in continuous learning and pushing the boundaries of what's possible in cybersecurity."
+                defaultText="I am a dedicated cybersecurity student passionate about ethical hacking and digital security. My learning journey encompasses hands-on practice through TryHackMe educational rooms, challenging Hack The Box machines, and competitive CTF events. Each completed challenge strengthens my understanding of penetration testing methodologies, vulnerability assessment techniques, and security best practices. I believe in learning by doing and continuously expanding my practical cybersecurity skills."
                 className="block min-h-[120px]"
               />
             </div>
