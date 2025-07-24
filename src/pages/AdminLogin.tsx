@@ -93,7 +93,7 @@ export const AdminLogin: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center px-4">
+    <div className="min-h-screen bg-black flex items-center justify-center px-4 relative z-10">
       <div className="max-w-md w-full">
         <div className="bg-gray-900 border border-terminal-green/30 rounded-lg shadow-xl p-8">
           <div className="text-center mb-8">

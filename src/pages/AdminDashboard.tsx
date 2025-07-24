@@ -49,7 +49,7 @@ export const AdminDashboard: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-black relative z-10">
       {/* Dashboard Header */}
       <section className="py-8 bg-gray-900 border-b border-terminal-green/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
