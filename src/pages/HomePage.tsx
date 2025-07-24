@@ -88,7 +88,7 @@ export const HomePage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-black relative z-10">
+    <div className="min-h-screen bg-black">
       {/* Hero Section */}
       <section className="py-20 bg-gradient-to-b from-black via-gray-900 to-black relative overflow-hidden">
         {/* Enhanced background effects with green theme */}
