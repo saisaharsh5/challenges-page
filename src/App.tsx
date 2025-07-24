@@ -1,8 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
-import { ThunderBackground } from './components/ThunderBackground';
-import { EnhancedThunderEffects } from './components/EnhancedThunderEffects';
 import { Header } from './components/Header';
 import { HomePage } from './pages/HomePage';
 import { AdminLogin } from './pages/AdminLogin';
@@ -13,8 +11,6 @@ function App() {
   return (
     <Router>
       <div className="min-h-screen bg-black">
-        <ThunderBackground />
-        <EnhancedThunderEffects />
         <Header />
         <Routes>
           <Route path="/" element={<HomePage />} />
